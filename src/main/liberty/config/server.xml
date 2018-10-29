@@ -8,6 +8,9 @@
   <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
       id="defaultHttpEndpoint" host="*" />
 
+	<library id="frmk">
+		<fileset dir="resources/frmk" includes="*.*" />
+	</library>
 
   <!-- Automatically expand WAR files and EAR files -->
   <applicationManager autoExpand="true"/>
@@ -21,6 +24,8 @@
     	 </group>	     
 	</basicRegistry>
 
-  <webApplication name="respadel" location="${app.location}"/>
-
+  <webApplication name="respadel" location="${app.location}">
+  		<classloader delegation="parentFirst" privateLibraryRef="frmk">
+		</classloader>
+  </webApplication>
 </server>
