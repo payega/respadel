@@ -1,0 +1,257 @@
+.titulo{
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    FONT: BOLD 20PX TAHOMA, VERDANA, ARIAL;
+    COLOR : #FFFFFF;
+    PADDING-TOP: 0px;
+    text-align: right;
+}
+
+.subtitulo{
+    PADDING-RIGHT: 8px;
+    PADDING-LEFT: 0px;
+    PADDING-BOTTOM: 0px;
+    MARGIN: 0px;
+    FONT: BOLD 16PX TAHOMA, VERDANA, ARIAL;
+    COLOR: #003200;
+    PADDING-TOP: 0px;
+}
+
+fieldset{
+    background: #ffffff; 
+    width: 95%;
+}
+
+legend{
+    background: #ffffff;
+    font: bold 10px Verdana, Arial, Helvetica, sans-serif;
+    color: #000000
+}
+
+
+a.link {
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-size: 12px;
+font-style: normal;
+font-weight: normal;
+color: #0000FF;
+text-decoration: none;
+}
+
+a.link:hover {
+font-family: Verdana, Arial, Helvetica, sans-serif;
+font-size: 12px;
+font-style: normal;
+font-weight: normal;
+color: #0000dd;
+text-decoration: none;
+}
+
+a.subtitulo:hover {
+font-family: Arial, Helvetica, sans-serif;
+font-size: 11px;
+font-style: normal;
+font-weight: bold;
+COLOR: #003200;
+text-decoration: none;
+}
+
+TD.titulo_menu {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-decoration: none;
+    line-height: 28px;
+    text-align: center;
+}
+
+TD.elementos_menu {
+  font-size: 14px;
+  color: #003200;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+A.elementos_menu {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    COLOR: #003200;
+    TEXT-DECORATION: none;
+    font-size: 14px;
+}
+
+A.elementos_menu:hover {
+	BACKGROUND-COLOR: #66ab05;
+}
+
+
+
+div#nifty{ 
+    margin: 0;
+    background: #f0ffd1;
+
+}
+b.rtop, b.rbottom{
+    display:block;
+    background: #FFFFFF
+}
+b.rtop b, b.rbottom b{
+    display:block;
+    height: 1px;
+    overflow: hidden;
+    background: #f0ffd1;
+}
+b.r1{
+    margin: 0 5px
+}
+b.r2{
+    margin: 0 3px
+}
+b.r3{
+    margin: 0 2px
+}
+b.rtop b.r4, b.rbottom b.r4{
+    margin: 0 1px;
+    height: 2px
+}
+
+.texto {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+	line-height: 15px;
+}
+
+.texto_negrita {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+	line-height: 15px;
+}
+
+.entradilla {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+	line-height: 15px;
+}
+
+
+.campos {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+	background-color:#FFFFFF;
+	border: 1px solid #999999;
+
+}
+
+.campos_sel {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+	background-color:#FFFFCC;
+	border: 1px solid #999999;
+}
+
+
+.fondocelda{
+	background-color: #FFFFFF;
+
+}
+
+.tituloTabla{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: bold;
+	color: #FFFFFF;
+	text-decoration: none;
+	line-height: 15px;
+        background-color:#006500;
+}
+
+.textoTabla{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-style: normal;
+        font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+	line-height: 15px;
+        background-color:#FFFFFF;
+}
+
+
+a.linkGrande {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: normal;
+	color: #0000FF;
+	text-decoration: none;
+}
+
+a.linkGrande:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: normal;
+	color: #0000dd;
+	text-decoration: underline;
+}
+
+a.linkGrandeGranate {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: normal;
+	color: #c02020;
+	text-decoration: none;
+}
+
+a.linkGrandeGranate:hover {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: normal;
+	color: #c02020;
+	text-decoration: underline;
+}
+
+.texto_aviso {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: bold;
+        color: #FF0000;
+	text-decoration: none;
+	line-height: 15px;
+}
+
+.centradoAli{
+        text-align:center;
+}
+
+.derechaAli{
+        text-align:right;
+}
+
+.izquierdaAli{
+        text-align:left;
+}

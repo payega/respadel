@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.FranjaMapper">
+
+  <cache />
+
+    
+  <select id="getFranjaById" parameterType="java.lang.Long" resultType="Franja">
+    SELECT
+          ID_FRANJA as idFranja,
+          NOMBRE as nombre,
+          FECHA_INICIO_VALIDEZ as fechaInicioValidez,
+          FECHA_FIN_VALIDEZ as fechaFinValidez,
+          FRANJA_FESTIVOS as franjaFestivos
+    FROM franja
+    WHERE ID_FRANJA = #{value}
+  </select>
+  
+   <select id="getFranjaValida" parameterType="map" resultType="Franja">
+       <![CDATA[
+            SELECT
+                  f.ID_FRANJA as idFranja,
+                  f.NOMBRE as nombre,
+                  f.FECHA_INICIO_VALIDEZ as fechaInicioValidez,
+                  f.FECHA_FIN_VALIDEZ as fechaFinValidez,
+                  f.FRANJA_FESTIVOS as franjaFestivos
+            FROM franja f,instalacion_franja ifr
+            WHERE 
+                  f.ID_FRANJA = ifr.FK_FRANJA
+                  AND ifr.FK_INSTALACION = #{idInstalacion}
+                  AND f.FECHA_INICIO_VALIDEZ <= #{fecha}
+                  AND f.FECHA_FIN_VALIDEZ >= #{fecha}
+                  AND f.FRANJA_FESTIVOS = #{festivo}
+        ]]>
+  </select>
+
+
+</mapper>

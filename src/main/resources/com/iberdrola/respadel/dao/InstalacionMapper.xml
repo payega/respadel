@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.InstalacionMapper">
+
+  <cache />
+
+  <select id="getListaCentrosPorActividad" parameterType="java.lang.Long" resultType="Centro">
+    SELECT DISTINCT
+          C.ID_CENTRO as idCentro,
+          C.NOMBRE as nombre
+    FROM instalacion i, centro c
+    WHERE I.FK_ACTIVIDAD = #{value}
+    	  AND I.FK_CENTRO = C.ID_CENTRO
+    ORDER BY C.ID_CENTRO
+  </select>
+
+  <select id="getInstalacionById" parameterType="java.lang.Long" resultType="Instalacion">
+    SELECT
+          ID_INSTALACION as idInstalacion,
+          FK_CENTRO as fkCentro,
+          FK_ACTIVIDAD as fkActividad,
+          NOMBRE as nombre
+    FROM instalacion
+    WHERE ID_INSTALACION = #{value}
+    ORDER BY ID_INSTALACION
+  </select>
+
+  <select id="getInstalacionByFkCentro" parameterType="java.lang.Long" resultType="Instalacion">
+    SELECT
+          ID_INSTALACION as idInstalacion,
+          FK_CENTRO as fkCentro,
+          FK_ACTIVIDAD as fkActividad,
+          NOMBRE as nombre
+    FROM instalacion
+    WHERE FK_CENTRO = #{value}
+    ORDER BY ID_INSTALACION
+  </select>
+  
+  <select id="getInstalacionByExample" parameterType="Instalacion" resultType="Instalacion">
+    SELECT
+          ID_INSTALACION as idInstalacion,
+          FK_CENTRO as fkCentro,
+          FK_ACTIVIDAD as fkActividad,
+          NOMBRE as nombre
+    FROM instalacion
+    <where>
+        <if test="fkCentro > 0">
+            FK_CENTRO = #{fkCentro}
+        </if>
+        <if test="fkCentro > 0">
+            AND FK_ACTIVIDAD = #{fkActividad}
+        </if>
+    </where>
+    ORDER BY FK_CENTRO
+  </select>  
+  
+  
+   <select id="getMapaInstalaciones" resultType="Instalacion">
+    SELECT
+          ID_INSTALACION as idInstalacion,
+          FK_CENTRO as fkCentro,
+          FK_ACTIVIDAD as fkActividad,
+          NOMBRE as nombre
+    FROM instalacion
+   
+  </select> 
+  
+  
+
+</mapper>

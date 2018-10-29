@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.CentroMapper">
+
+  <cache />
+
+  <select id="getListaCentros" resultType="Centro">
+    SELECT
+          ID_CENTRO as idCentro,
+          NOMBRE as nombre
+    FROM centro
+    ORDER BY ID_CENTRO
+  </select>
+
+  <select id="getCentroById" parameterType="java.lang.Long" resultType="Centro">
+    SELECT
+          ID_CENTRO as idCentro,
+          NOMBRE as nombre
+    FROM centro
+    WHERE ID_CENTRO = #{value}
+  </select>
+
+  <select id="getMapaCentros" resultType="Centro">
+    SELECT
+          ID_CENTRO as idCentro,
+          NOMBRE as nombre
+    FROM centro
+    ORDER BY ID_CENTRO
+  </select>
+  
+</mapper>

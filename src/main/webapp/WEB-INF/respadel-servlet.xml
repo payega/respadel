@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+     xmlns:mvc="http://www.springframework.org/schema/mvc"    
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+     http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd">			
+
+		
+	<mvc:annotation-driven />
+
+	<bean id="seleccionActividadController"
+		class="com.iberdrola.respadel.web.SeleccionActividadController">
+		<property name="reservaService" ref="reservaService" />
+	</bean>
+
+	<bean id="seleccionCentroController"
+		class="com.iberdrola.respadel.web.SeleccionCentroController">
+		<property name="reservaService" ref="reservaService" />
+	</bean>
+
+	<bean id="tablaFranjasCentroController"
+		class="com.iberdrola.respadel.web.TablaFranjasCentroController">
+		<property name="reservaService" ref="reservaService" />
+		<property name="props" ref="java.util.Properties" />
+	</bean>
+
+	<bean id="tablaFranjasController" class="com.iberdrola.respadel.web.TablaFranjasController">
+		<property name="reservaService" ref="reservaService" />
+	</bean>
+
+	<bean id="detalleReservaController"
+		class="com.iberdrola.respadel.web.DetalleReservaController">
+		<property name="reservaService" ref="reservaService" />
+		<property name="props" ref="java.util.Properties" />
+	</bean>
+
+	<bean id="misReservasController" class="com.iberdrola.respadel.web.MisReservasController">
+		<property name="reservaService" ref="reservaService" />
+		<property name="administracionService" ref="administracionService" />
+		<property name="props" ref="java.util.Properties" />
+	</bean>
+
+	<bean id="meapuntoController" class="com.iberdrola.respadel.web.MeapuntoController">
+		<property name="reservaService" ref="reservaService" />
+		<property name="props" ref="java.util.Properties" />
+	</bean>
+
+	<bean id="adminReservasController"
+		class="com.iberdrola.respadel.web.admin.ReservasController">
+		<property name="administracionService" ref="administracionService" />
+		<property name="props" ref="java.util.Properties" />
+	</bean>
+
+	<bean id="adminFestivosController"
+		class="com.iberdrola.respadel.web.admin.FestivosController">
+		<property name="administracionService" ref="administracionService" />
+		<property name="props" ref="java.util.Properties" />
+	</bean>
+
+	<bean id="adminServiciosController"
+		class="com.iberdrola.respadel.web.admin.ServiciosController">
+		<property name="administracionService" ref="administracionService" />
+		<property name="props" ref="java.util.Properties" />
+	</bean>
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- interceptor de framework -->
+	<aop:config>
+		<aop:aspect ref="actionInterceptor">
+			<aop:pointcut id="controllers" expression="execution(* com.iberdrola.respadel.web.*.*(..))" />
+			<aop:around pointcut-ref="controllers" method="procesar" />
+		</aop:aspect> 
+	</aop:config>
+	
+	<bean id="actionInterceptor" class="com.iberdrola.frwk.spring.FrwkSpringInterceptor" >
+		<property name="tipo" value="ACTION" />
+		<property name="dispatcher" ref="com.iberdrola.frwk.dispatcher.FrwkDispatcher"/>
+	</bean>    
+
+</beans>

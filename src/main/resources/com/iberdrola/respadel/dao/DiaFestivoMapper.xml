@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.DiaFestivoMapper">
+
+  <cache />
+
+    
+  <select id="getDiaFestivoById" parameterType="java.lang.Long" resultType="DiaFestivo">
+    SELECT
+          ID_DIA_FESTIVO as idDiaFestivo,
+          DIA as dia,
+          FK_CENTRO AS fkCentro
+    FROM dia_festivo
+    WHERE ID_DIA_FESTIVO = #{value}
+  </select>
+  
+  <select id="getDiaFestivoByDate" parameterType="map" resultType="DiaFestivo">
+    SELECT
+          ID_DIA_FESTIVO as idDiaFestivo,
+          DIA as dia,
+          FK_CENTRO AS fkCentro
+    FROM dia_festivo
+    WHERE DIA = #{dia} and FK_CENTRO = #{fkCentro}
+  </select>
+
+  <select id="getDiaFestivoByFiltro" parameterType="map" resultType="DiaFestivo">
+    SELECT
+          ID_DIA_FESTIVO as idDiaFestivo,
+          DIA as dia,
+          FK_CENTRO AS fkCentro
+    FROM dia_festivo
+    <where>
+        <if test="fechaDesde != null">
+            DIA &gt;= #{fechaDesde}
+        </if>
+        <if test="fechaHasta != null">
+            AND DIA &lt;= #{fechaHasta}
+        </if>
+        <if test="fkCentro != null">
+            AND FK_CENTRO = #{fkCentro}
+        </if>
+    </where>
+  </select>
+  
+  <select id="getCountFestivoByFiltro" parameterType="map"  resultType="int" useCache="false">
+    SELECT
+          count(ID_DIA_FESTIVO)
+    FROM dia_festivo
+    <where>
+        <if test="fechaDesde != null">
+            DIA &gt;= #{fechaDesde}
+        </if>
+        <if test="fechaHasta != null">
+            AND DIA &lt;= #{fechaHasta}
+        </if>
+         <if test="fkCentro != null">
+            AND FK_CENTRO = #{fkCentro}
+        </if>
+    </where>
+  </select>
+  
+  <insert id="crearDiaFestivo" parameterType="DiaFestivo">
+    INSERT INTO DIA_FESTIVO(ID_DIA_FESTIVO, DIA,FK_CENTRO)  
+    VALUES (
+           null,
+          #{dia},
+          #{fkCentro})
+  </insert> 
+  
+  <delete id="eliminarDiaFestivo" parameterType="int">
+        DELETE FROM DIA_FESTIVO WHERE ID_DIA_FESTIVO=#{value}
+  </delete>
+
+</mapper>

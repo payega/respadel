@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.MeapuntoMapper">
+
+  <cache />
+    
+  <select id="getMeapuntoPorId" parameterType="java.lang.Long" resultType="Meapunto">
+    SELECT
+            ID_MEAPUNTO as idMeapunto,
+            FK_RESERVA as fkReserva,
+            NIVEL_MINIMO as nivelMinimo,
+            NIVEL_MAXIMO as nivelMaximo,
+            NOTAS as notas,
+            DIA_LIMITE as diaLimite,
+            HORA_LIMITE as horaLimite,
+            INSCRITOS as inscritos,
+            ESTADO as estado
+    FROM MEAPUNTO
+    WHERE ID_MEAPUNTO = #{value}
+  </select>
+
+  
+  <select id="getProximosMeapunto" parameterType="java.util.Date" resultType="Meapunto">
+    <![CDATA[
+    SELECT
+            ID_MEAPUNTO as idMeapunto,
+            FK_RESERVA as fkReserva,
+            NIVEL_MINIMO as nivelMinimo,
+            NIVEL_MAXIMO as nivelMaximo,
+            NOTAS as notas,
+            DIA_LIMITE as diaLimite,
+            HORA_LIMITE as horaLimite,
+            INSCRITOS as inscritos,
+            ESTADO as estado
+    FROM MEAPUNTO
+    WHERE DIA_LIMITE>= #{dia}
+        ]]>
+  </select>
+  
+  <select id="getMapaProximosMeapuntoUsuario" parameterType="map" resultType="map">
+    <![CDATA[
+    SELECT
+            mapu.ID_MEAPUNTO as idMeapunto,
+            mapu.FK_RESERVA as fkReserva
+    FROM MEAPUNTO mapu,RESERVA res,INSCRIPCION_MEAPUNTO inscrp
+    WHERE mapu.FK_RESERVA = res.ID_RESERVA
+        and inscrp.FK_MEAPUNTO = mapu.ID_MEAPUNTO
+        and mapu.DIA_LIMITE>= #{dia}
+        and inscrp.USUARIO = #{usuario}
+        ]]>
+  </select>
+  
+  <select id="getMapaProximosMeapunto" parameterType="map" resultType="map">
+    <![CDATA[
+    SELECT
+            mapu.ID_MEAPUNTO as idMeapunto,
+            mapu.FK_RESERVA as fkReserva,
+            mapu.NIVEL_MINIMO as nivelMinimo,
+            mapu.NIVEL_MAXIMO as nivelMaximo,
+            mapu.NOTAS as notas,
+            mapu.DIA_LIMITE as diaLimite,
+            mapu.HORA_LIMITE as horaLimite,
+            mapu.INSCRITOS as inscritos,
+            mapu.ESTADO as estado,
+            res.DIA as fechaReserva,
+            frj.HORA_INICIO as reservaHoraInicio,
+            frj.HORA_FIN as reservaHoraFin,
+            inst.nombre as nombreInstalacion,
+            cen.nombre as nombreCentro
+    FROM MEAPUNTO mapu,RESERVA res, FRANJA_DIA frj, INSTALACION inst, CENTRO cen
+    WHERE mapu.FK_RESERVA = res.ID_RESERVA
+        and res.FK_FRANJA_DIA = frj.ID_FRANJA_DIA
+        and res.FK_INSTALACION = inst.ID_INSTALACION
+        and cen.ID_CENTRO = inst.FK_CENTRO
+        and mapu.DIA_LIMITE>= #{dia}
+        ]]>
+  </select>
+  
+  <!-- Por ahora usamos un campo autoincremental de hsqldb -->
+  <insert id="crearMeapunto" parameterType="Meapunto">
+    INSERT INTO meapunto(ID_MEAPUNTO,FK_RESERVA,NIVEL_MINIMO,NIVEL_MAXIMO,NOTAS,DIA_LIMITE,HORA_LIMITE,INSCRITOS,ESTADO)
+    VALUES (null,
+            #{fkReserva},
+            #{nivelMinimo},
+            #{nivelMaximo},
+            #{notas},
+            #{diaLimite},
+            #{horaLimite},
+            #{inscritos},
+            #{estado})
+            
+  </insert> 
+
+    <delete id="eliminarMeapunto" parameterType="java.lang.Long">
+        DELETE FROM meapunto WHERE ID_MEAPUNTO=#{value}
+    </delete>
+
+</mapper>

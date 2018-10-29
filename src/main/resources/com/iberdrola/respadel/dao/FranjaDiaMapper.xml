@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.FranjaDiaMapper">
+
+  <cache />
+    
+  <select id="getFranjaDiaById" parameterType="java.lang.Long" resultType="FranjaDia">
+    SELECT
+          ID_FRANJA_DIA as idFranjaDia,
+          FK_FRANJA as fkFranja,
+          HORA_INICIO as horaInicio,
+          HORA_FIN as horaFin
+    FROM franja_dia
+    WHERE ID_FRANJA_DIA = #{value}
+  </select>
+  
+  <select id="getFranjaDiaByFranja"  parameterType="java.lang.Long" resultType="FranjaDia">
+    <![CDATA[
+    SELECT
+          ID_FRANJA_DIA as idFranjaDia,
+          FK_FRANJA as fkFranja,
+          HORA_INICIO as horaInicio,
+          HORA_FIN as horaFin
+    FROM franja_dia
+    WHERE FK_FRANJA = #{value}
+    ORDER BY HORA_INICIO
+     ]]>
+  </select>
+
+  <select id="getMapaFranjas" resultType="FranjaDia">
+    <![CDATA[
+    SELECT
+          ID_FRANJA_DIA as idFranjaDia,
+          FK_FRANJA as fkFranja,
+          HORA_INICIO as horaInicio,
+          HORA_FIN as horaFin
+    FROM franja_dia
+    ]]>
+  </select>
+
+</mapper>

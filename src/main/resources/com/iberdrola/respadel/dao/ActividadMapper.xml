@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.ActividadMapper">
+
+  <cache />
+
+  <select id="getListaActividades" resultType="Actividad">
+    SELECT
+          ID_ACTIVIDAD as idActividad,
+          NOMBRE as nombre
+    FROM actividad
+    ORDER BY ID_ACTIVIDAD
+  </select>
+
+  <select id="getActividad" resultType="Actividad" parameterType="java.lang.Long" >
+    SELECT
+          ID_ACTIVIDAD as idActividad,
+          NOMBRE as nombre
+    FROM actividad
+    WHERE ID_ACTIVIDAD = #{value}
+  </select>
+
+</mapper>

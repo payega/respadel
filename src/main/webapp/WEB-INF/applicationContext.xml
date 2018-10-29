@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:ibeFrwk="http://www.iberdrola.es/schema/ibeFrwk"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+    http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.2.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.2.xsd
+	http://www.iberdrola.es/schema/ibeFrwk http://www.iberdrola.es/schema/ibeFrwk/ibeFrwk.xsd">
+	
+	
+	
+    
+    <!--jee:jndi-lookup id="dataSource" jndi-name="jdbc/dsRespadel"/-->   
+	
+	<bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="org.postgresql.Driver" />
+        <property name="url" value="jdbc:postgresql://192.168.65.3:5432/compose"/>
+		<!--property name="url" value="jdbc/dsRespadel"-->
+        <property name="username" value="postgres"/>
+		<property name="password" value="admin"/>
+        <property name="validationQuery" value="SELECT 1"/>
+        <property name="testWhileIdle" value="true"/>
+    </bean>
+
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <context:annotation-config />  
+    <tx:annotation-driven />	
+	
+	<ibeFrwk:config appName="respadel">
+		<ibeFrwk:dsConfig ref="dataSource" />			
+		<ibeFrwk:testeo>
+			<ibeFrwk:test name="db" ref="com.iberdrola.frwk.testeo.impl.testers.TesterBD"/>				
+		</ibeFrwk:testeo>	
+		<ibeFrwk:batch>
+			<ibeFrwk:tarea name="chkTest" ref="com.iberdrola.respadel.web.Testeo"/>
+		</ibeFrwk:batch>	
+	</ibeFrwk:config>
+			
+	<bean class="com.iberdrola.frwk.testeo.impl.testers.TesterBD">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<bean id="com.iberdrola.respadel.web.Testeo" class="com.iberdrola.respadel.web.Testeo">
+  		<property name="parametro" value="100"/>
+  	</bean>
+ 	
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="typeAliasesPackage" value="com.iberdrola.respadel.model" />
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.iberdrola.respadel.dao" />
+    </bean>     
+		
+	         
+    <bean id="reservaService" class="com.iberdrola.respadel.service.impl.ReservaServiceImpl">
+        <property name="diaFestivoMapper" ref="diaFestivoMapper"/>
+        <property name="centroMapper" ref="centroMapper"/>
+        <property name="instalacionMapper" ref="instalacionMapper"/>
+        <property name="reservaMapper" ref="reservaMapper"/>
+        <property name="franjaDiaMapper" ref="franjaDiaMapper"/>
+        <property name="franjaMapper" ref="franjaMapper"/>
+        <property name="meapuntoMapper" ref="meapuntoMapper"/>
+        <property name="actividadMapper" ref="actividadMapper"/>
+        <property name="adminMapper" ref="adminMapper"/>
+        <property name="props" ref="java.util.Properties" />
+    </bean>
+    
+    <bean id="administracionService" class="com.iberdrola.respadel.service.impl.AdministracionServiceImpl">
+        <property name="diaFestivoMapper" ref="diaFestivoMapper"/>
+        <property name="centroMapper" ref="centroMapper"/>
+        <property name="instalacionMapper" ref="instalacionMapper"/>
+        <property name="reservaMapper" ref="reservaMapper"/>
+        <property name="franjaDiaMapper" ref="franjaDiaMapper"/>
+        <property name="franjaMapper" ref="franjaMapper"/>
+        <property name="meapuntoMapper" ref="meapuntoMapper"/>
+        <property name="adminMapper" ref="adminMapper"/>        
+        <property name="props" ref="java.util.Properties" />
+    </bean>
+	
+	   
+	<aop:config>
+		<aop:aspect ref="daoInterceptor">
+			<aop:pointcut id="daos" expression="execution(* com.iberdrola.respadel.dao.*.*(..))" />
+			<aop:around pointcut-ref="daos" method="procesar" />
+		</aop:aspect> 
+	</aop:config>
+	
+	<bean id="daoInterceptor" class="com.iberdrola.frwk.spring.FrwkSpringInterceptor" >
+		<property name="tipo" value="DAO" />
+		<property name="dispatcher" ref="com.iberdrola.frwk.dispatcher.FrwkDispatcher"/>
+	</bean>    
+
+	<aop:config>
+		<aop:aspect ref="serviceInterceptor">
+			<aop:pointcut id="services" expression="execution(* com.iberdrola.respadel.service.*.*(..))" />
+			<aop:around pointcut-ref="services" method="procesar" />
+		</aop:aspect> 
+	</aop:config>
+	
+	<bean id="serviceInterceptor" class="com.iberdrola.frwk.spring.FrwkSpringInterceptor" >
+		<property name="tipo" value="SERVICIO" />
+		<property name="dispatcher" ref="com.iberdrola.frwk.dispatcher.FrwkDispatcher"/>
+	</bean>    
+
+</beans>

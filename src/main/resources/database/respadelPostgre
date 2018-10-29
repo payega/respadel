@@ -1,0 +1,931 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.6.6
+-- Dumped by pg_dump version 9.6.10
+
+-- Started on 2018-09-07 11:08:41
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 2266 (class 1262 OID 16390)
+-- Name: compose; Type: DATABASE; Schema: -; Owner: admin
+--
+
+CREATE DATABASE compose WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'C' LC_CTYPE = 'C';
+
+
+ALTER DATABASE compose OWNER TO admin;
+
+\connect compose
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 1 (class 3079 OID 12393)
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- TOC entry 2268 (class 0 OID 0)
+-- Dependencies: 1
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
+-- TOC entry 208 (class 1255 OID 16386)
+-- Name: compose_session_replication_role(text); Type: FUNCTION; Schema: public; Owner: focker
+--
+
+CREATE FUNCTION public.compose_session_replication_role(role text) RETURNS text
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+        DECLARE
+                curr_val text := 'unset';
+        BEGIN
+                EXECUTE 'SET session_replication_role = ' || quote_literal(role);
+                EXECUTE 'SHOW session_replication_role' INTO curr_val;
+                RETURN curr_val;
+        END
+$$;
+
+
+ALTER FUNCTION public.compose_session_replication_role(role text) OWNER TO focker;
+
+--
+-- TOC entry 209 (class 1255 OID 16387)
+-- Name: kill_all_connections(); Type: FUNCTION; Schema: public; Owner: focker
+--
+
+CREATE FUNCTION public.kill_all_connections() RETURNS text
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+        BEGIN
+                EXECUTE 'SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = current_database() AND pid <> pg_backend_pid()';
+                RETURN 'ok';
+        END
+$$;
+
+
+ALTER FUNCTION public.kill_all_connections() OWNER TO focker;
+
+--
+-- TOC entry 210 (class 1255 OID 16388)
+-- Name: pg_kill_connection(integer); Type: FUNCTION; Schema: public; Owner: focker
+--
+
+CREATE FUNCTION public.pg_kill_connection(integer) RETURNS boolean
+    LANGUAGE sql SECURITY DEFINER
+    AS $_$select pg_terminate_backend($1);$_$;
+
+
+ALTER FUNCTION public.pg_kill_connection(integer) OWNER TO focker;
+
+--
+-- TOC entry 223 (class 1255 OID 16389)
+-- Name: upgrade_postgis_23x(); Type: FUNCTION; Schema: public; Owner: focker
+--
+
+CREATE FUNCTION public.upgrade_postgis_23x() RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public', 'pg_temp'
+    AS $$
+    DECLARE ver TEXT;
+    BEGIN
+            SELECT version INTO ver FROM pg_available_extension_versions WHERE name = 'postgis' AND version LIKE '2.3%';
+            EXECUTE 'ALTER EXTENSION postgis UPDATE TO ' || quote_literal(ver);
+    END;
+    $$;
+
+
+ALTER FUNCTION public.upgrade_postgis_23x() OWNER TO focker;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 185 (class 1259 OID 16394)
+-- Name: actividad; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.actividad (
+    id_actividad integer NOT NULL,
+    nombre character varying(80) NOT NULL
+);
+
+
+ALTER TABLE public.actividad OWNER TO admin;
+
+--
+-- TOC entry 186 (class 1259 OID 16399)
+-- Name: admin; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.admin (
+    id_admin character varying(80) NOT NULL
+);
+
+
+ALTER TABLE public.admin OWNER TO admin;
+
+--
+-- TOC entry 187 (class 1259 OID 16404)
+-- Name: centro; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.centro (
+    id_centro integer NOT NULL,
+    nombre character varying(80) NOT NULL
+);
+
+
+ALTER TABLE public.centro OWNER TO admin;
+
+--
+-- TOC entry 189 (class 1259 OID 16411)
+-- Name: dia_festivo; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.dia_festivo (
+    id_dia_festivo integer NOT NULL,
+    dia date,
+    fk_centro integer NOT NULL
+);
+
+
+ALTER TABLE public.dia_festivo OWNER TO admin;
+
+--
+-- TOC entry 188 (class 1259 OID 16409)
+-- Name: dia_festivo_id_dia_festivo_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.dia_festivo_id_dia_festivo_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.dia_festivo_id_dia_festivo_seq OWNER TO admin;
+
+--
+-- TOC entry 2272 (class 0 OID 0)
+-- Dependencies: 188
+-- Name: dia_festivo_id_dia_festivo_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.dia_festivo_id_dia_festivo_seq OWNED BY public.dia_festivo.id_dia_festivo;
+
+
+--
+-- TOC entry 190 (class 1259 OID 16417)
+-- Name: franja; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.franja (
+    id_franja integer NOT NULL,
+    nombre character varying(80) NOT NULL,
+    fecha_inicio_validez date,
+    fecha_fin_validez date,
+    franja_festivos integer NOT NULL
+);
+
+
+ALTER TABLE public.franja OWNER TO admin;
+
+--
+-- TOC entry 191 (class 1259 OID 16422)
+-- Name: franja_dia; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.franja_dia (
+    id_franja_dia integer NOT NULL,
+    fk_franja integer NOT NULL,
+    hora_inicio time without time zone NOT NULL,
+    hora_fin time without time zone NOT NULL
+);
+
+
+ALTER TABLE public.franja_dia OWNER TO admin;
+
+--
+-- TOC entry 192 (class 1259 OID 16427)
+-- Name: frwk_audit_campo; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_audit_campo (
+    cod_registro character varying(20) NOT NULL,
+    nom_campo character varying(32) NOT NULL,
+    val_campo character varying(32)
+);
+
+
+ALTER TABLE public.frwk_audit_campo OWNER TO admin;
+
+--
+-- TOC entry 193 (class 1259 OID 16430)
+-- Name: frwk_audit_el_java; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_audit_el_java (
+    cod_servicio character varying(254) NOT NULL,
+    cod_el_java character varying(32) NOT NULL,
+    ind_activo character varying(1),
+    ind_entrada character varying(1),
+    num_parametro integer,
+    val_xpath character varying(254),
+    val_nom_salida character varying(32)
+);
+
+
+ALTER TABLE public.frwk_audit_el_java OWNER TO admin;
+
+--
+-- TOC entry 194 (class 1259 OID 16436)
+-- Name: frwk_audit_reg; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_audit_reg (
+    cod_registro character varying(20) NOT NULL,
+    fec_hora timestamp(6) without time zone,
+    cod_usuario character varying(16),
+    cod_servicio character varying(220),
+    id_peticion character varying(32),
+    val_tiempo integer,
+    val_excepcion character varying(256),
+    id_app character varying(16)
+);
+
+
+ALTER TABLE public.frwk_audit_reg OWNER TO admin;
+
+--
+-- TOC entry 195 (class 1259 OID 16442)
+-- Name: frwk_audit_srv; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_audit_srv (
+    cod_servicio character varying(254) NOT NULL,
+    ind_activo character varying(1),
+    tipo_servicio character varying(1),
+    id_app character varying(16),
+    val_nom_salida character varying(254),
+    ind_obligatorio character varying(1),
+    val_nom_servicio character varying(254)
+);
+
+
+ALTER TABLE public.frwk_audit_srv OWNER TO admin;
+
+--
+-- TOC entry 196 (class 1259 OID 16448)
+-- Name: frwk_audit_usu; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_audit_usu (
+    usuario character varying(64),
+    id_app character varying(16),
+    sincrono character(1),
+    obligatorio character(1)
+);
+
+
+ALTER TABLE public.frwk_audit_usu OWNER TO admin;
+
+--
+-- TOC entry 197 (class 1259 OID 16451)
+-- Name: frwk_config; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_config (
+    clave character varying(128),
+    valor character varying(1024),
+    id_app character varying(16),
+    is_frwk character varying(1),
+    id character varying(128)
+);
+
+
+ALTER TABLE public.frwk_config OWNER TO admin;
+
+--
+-- TOC entry 198 (class 1259 OID 16457)
+-- Name: frwk_gest_errores; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_gest_errores (
+    valor character varying(4000),
+    id_app character varying(16)
+);
+
+
+ALTER TABLE public.frwk_gest_errores OWNER TO admin;
+
+--
+-- TOC entry 199 (class 1259 OID 16463)
+-- Name: frwk_logging; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.frwk_logging (
+    valor character varying(4000),
+    id_app character varying(16)
+);
+
+
+ALTER TABLE public.frwk_logging OWNER TO admin;
+
+--
+-- TOC entry 201 (class 1259 OID 16471)
+-- Name: inscripcion_meapunto; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.inscripcion_meapunto (
+    id_inscripcion_meapunto integer NOT NULL,
+    fk_meapunto integer NOT NULL,
+    usuario character varying(80) NOT NULL,
+    email_usuario character varying(500) NOT NULL
+);
+
+
+ALTER TABLE public.inscripcion_meapunto OWNER TO admin;
+
+--
+-- TOC entry 200 (class 1259 OID 16469)
+-- Name: inscripcion_meapunto_id_inscripcion_meapunto_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.inscripcion_meapunto_id_inscripcion_meapunto_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.inscripcion_meapunto_id_inscripcion_meapunto_seq OWNER TO admin;
+
+--
+-- TOC entry 2273 (class 0 OID 0)
+-- Dependencies: 200
+-- Name: inscripcion_meapunto_id_inscripcion_meapunto_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.inscripcion_meapunto_id_inscripcion_meapunto_seq OWNED BY public.inscripcion_meapunto.id_inscripcion_meapunto;
+
+
+--
+-- TOC entry 204 (class 1259 OID 16489)
+-- Name: instalacion; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.instalacion (
+    id_instalacion integer NOT NULL,
+    fk_centro integer NOT NULL,
+    fk_actividad integer NOT NULL,
+    nombre character varying(80) NOT NULL
+);
+
+
+ALTER TABLE public.instalacion OWNER TO admin;
+
+--
+-- TOC entry 205 (class 1259 OID 16494)
+-- Name: instalacion_franja; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.instalacion_franja (
+    id_instalacion_franja integer NOT NULL,
+    fk_instalacion integer NOT NULL,
+    fk_franja integer NOT NULL
+);
+
+
+ALTER TABLE public.instalacion_franja OWNER TO admin;
+
+--
+-- TOC entry 207 (class 1259 OID 16501)
+-- Name: meapunto; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.meapunto (
+    id_meapunto integer NOT NULL,
+    fk_reserva integer NOT NULL,
+    nivel_minimo numeric(3,2) NOT NULL,
+    nivel_maximo numeric(3,2) NOT NULL,
+    notas character varying(500) NOT NULL,
+    dia_limite date NOT NULL,
+    hora_limite time without time zone NOT NULL,
+    inscritos integer NOT NULL,
+    estado character varying(1) NOT NULL
+);
+
+
+ALTER TABLE public.meapunto OWNER TO admin;
+
+--
+-- TOC entry 206 (class 1259 OID 16499)
+-- Name: meapunto_id_meapunto_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.meapunto_id_meapunto_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.meapunto_id_meapunto_seq OWNER TO admin;
+
+--
+-- TOC entry 2274 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: meapunto_id_meapunto_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.meapunto_id_meapunto_seq OWNED BY public.meapunto.id_meapunto;
+
+
+--
+-- TOC entry 203 (class 1259 OID 16482)
+-- Name: reserva; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.reserva (
+    id_reserva integer NOT NULL,
+    fk_franja_dia integer NOT NULL,
+    fk_instalacion integer NOT NULL,
+    dia date,
+    fec_hora timestamp without time zone,
+    usuario character varying(80) NOT NULL,
+    nombre_original character varying(80),
+    estado character varying(1) NOT NULL
+);
+
+
+ALTER TABLE public.reserva OWNER TO admin;
+
+--
+-- TOC entry 202 (class 1259 OID 16480)
+-- Name: reserva_id_reserva_seq; Type: SEQUENCE; Schema: public; Owner: admin
+--
+
+CREATE SEQUENCE public.reserva_id_reserva_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reserva_id_reserva_seq OWNER TO admin;
+
+--
+-- TOC entry 2275 (class 0 OID 0)
+-- Dependencies: 202
+-- Name: reserva_id_reserva_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: admin
+--
+
+ALTER SEQUENCE public.reserva_id_reserva_seq OWNED BY public.reserva.id_reserva;
+
+
+--
+-- TOC entry 2095 (class 2604 OID 16414)
+-- Name: dia_festivo id_dia_festivo; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.dia_festivo ALTER COLUMN id_dia_festivo SET DEFAULT nextval('public.dia_festivo_id_dia_festivo_seq'::regclass);
+
+
+--
+-- TOC entry 2096 (class 2604 OID 16474)
+-- Name: inscripcion_meapunto id_inscripcion_meapunto; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.inscripcion_meapunto ALTER COLUMN id_inscripcion_meapunto SET DEFAULT nextval('public.inscripcion_meapunto_id_inscripcion_meapunto_seq'::regclass);
+
+
+--
+-- TOC entry 2098 (class 2604 OID 16504)
+-- Name: meapunto id_meapunto; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.meapunto ALTER COLUMN id_meapunto SET DEFAULT nextval('public.meapunto_id_meapunto_seq'::regclass);
+
+
+--
+-- TOC entry 2097 (class 2604 OID 16485)
+-- Name: reserva id_reserva; Type: DEFAULT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.reserva ALTER COLUMN id_reserva SET DEFAULT nextval('public.reserva_id_reserva_seq'::regclass);
+
+
+--
+-- TOC entry 2238 (class 0 OID 16394)
+-- Dependencies: 185
+-- Data for Name: actividad; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.actividad VALUES (1, 'Padel');
+INSERT INTO public.actividad VALUES (2, 'Tenis');
+INSERT INTO public.actividad VALUES (3, 'Fronton');
+
+
+--
+-- TOC entry 2239 (class 0 OID 16399)
+-- Dependencies: 186
+-- Data for Name: admin; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.admin VALUES ('admin');
+
+
+--
+-- TOC entry 2240 (class 0 OID 16404)
+-- Dependencies: 187
+-- Data for Name: centro; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.centro VALUES (1, 'Larraskitu');
+INSERT INTO public.centro VALUES (2, 'Madrid');
+INSERT INTO public.centro VALUES (3, 'La Ola');
+
+
+--
+-- TOC entry 2242 (class 0 OID 16411)
+-- Dependencies: 189
+-- Data for Name: dia_festivo; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2276 (class 0 OID 0)
+-- Dependencies: 188
+-- Name: dia_festivo_id_dia_festivo_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.dia_festivo_id_dia_festivo_seq', 1, false);
+
+
+--
+-- TOC entry 2243 (class 0 OID 16417)
+-- Dependencies: 190
+-- Data for Name: franja; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.franja VALUES (1, 'Festivos', '2000-01-01', '2099-01-01', 0);
+INSERT INTO public.franja VALUES (2, 'Laborables', '2000-01-01', '2099-01-01', 1);
+
+
+--
+-- TOC entry 2244 (class 0 OID 16422)
+-- Dependencies: 191
+-- Data for Name: franja_dia; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.franja_dia VALUES (1, 1, '09:00:00', '10:30:00');
+INSERT INTO public.franja_dia VALUES (2, 1, '10:30:00', '12:00:00');
+INSERT INTO public.franja_dia VALUES (3, 1, '12:00:00', '13:30:00');
+INSERT INTO public.franja_dia VALUES (4, 1, '13:30:00', '15:00:00');
+INSERT INTO public.franja_dia VALUES (5, 1, '15:00:00', '16:30:00');
+INSERT INTO public.franja_dia VALUES (6, 1, '16:30:00', '18:00:00');
+INSERT INTO public.franja_dia VALUES (7, 1, '18:00:00', '19:30:00');
+INSERT INTO public.franja_dia VALUES (8, 1, '19:30:00', '21:00:00');
+INSERT INTO public.franja_dia VALUES (11, 2, '15:15:00', '16:15:00');
+INSERT INTO public.franja_dia VALUES (12, 2, '16:15:00', '17:15:00');
+INSERT INTO public.franja_dia VALUES (13, 2, '17:15:00', '18:15:00');
+INSERT INTO public.franja_dia VALUES (14, 2, '18:15:00', '19:15:00');
+INSERT INTO public.franja_dia VALUES (15, 2, '19:15:00', '20:15:00');
+INSERT INTO public.franja_dia VALUES (16, 2, '20:15:00', '21:15:00');
+
+
+--
+-- TOC entry 2245 (class 0 OID 16427)
+-- Dependencies: 192
+-- Data for Name: frwk_audit_campo; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2246 (class 0 OID 16430)
+-- Dependencies: 193
+-- Data for Name: frwk_audit_el_java; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2247 (class 0 OID 16436)
+-- Dependencies: 194
+-- Data for Name: frwk_audit_reg; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2248 (class 0 OID 16442)
+-- Dependencies: 195
+-- Data for Name: frwk_audit_srv; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2249 (class 0 OID 16448)
+-- Dependencies: 196
+-- Data for Name: frwk_audit_usu; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2250 (class 0 OID 16451)
+-- Dependencies: 197
+-- Data for Name: frwk_config; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.frwk_config VALUES ('NUMERO_DIAS_A_MOSTRAR', '8', 'respadel', 'S', 'ID');
+INSERT INTO public.frwk_config VALUES ('NUMERO_MAXIMO_RESERVAS', '2', 'respadel', 'S', 'ID');
+INSERT INTO public.frwk_config VALUES ('ELEMENTOS_PASO_PAGINACION', '10', 'respadel', 'S', 'ID');
+INSERT INTO public.frwk_config VALUES ('USUARIOS_AUTORIZADOS', 'admin,user,U*,E*', 'respadel', 'S', 'ID');
+
+
+--
+-- TOC entry 2251 (class 0 OID 16457)
+-- Dependencies: 198
+-- Data for Name: frwk_gest_errores; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2252 (class 0 OID 16463)
+-- Dependencies: 199
+-- Data for Name: frwk_logging; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.frwk_logging VALUES ('<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="CONSOLA" class="org.apache.log4j.ConsoleAppender">		
+		<layout class="org.apache.log4j.PatternLayout" />
+	</appender>	   
+	<root>
+		<priority value="DEBUG"/>
+		<appender-ref ref="CONSOLA" />
+	</root>
+</log4j:configuration>', 'respadel');
+
+
+--
+-- TOC entry 2254 (class 0 OID 16471)
+-- Dependencies: 201
+-- Data for Name: inscripcion_meapunto; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2277 (class 0 OID 0)
+-- Dependencies: 200
+-- Name: inscripcion_meapunto_id_inscripcion_meapunto_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.inscripcion_meapunto_id_inscripcion_meapunto_seq', 1, false);
+
+
+--
+-- TOC entry 2257 (class 0 OID 16489)
+-- Dependencies: 204
+-- Data for Name: instalacion; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.instalacion VALUES (1, 1, 1, 'Pista 1');
+INSERT INTO public.instalacion VALUES (2, 1, 1, 'Pista 2');
+INSERT INTO public.instalacion VALUES (3, 2, 1, 'Pista 1');
+INSERT INTO public.instalacion VALUES (4, 2, 1, 'Pista 2');
+INSERT INTO public.instalacion VALUES (5, 3, 2, 'Pista 1');
+INSERT INTO public.instalacion VALUES (6, 3, 3, 'Fronton 1');
+
+
+--
+-- TOC entry 2258 (class 0 OID 16494)
+-- Dependencies: 205
+-- Data for Name: instalacion_franja; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.instalacion_franja VALUES (1, 1, 1);
+INSERT INTO public.instalacion_franja VALUES (2, 1, 2);
+INSERT INTO public.instalacion_franja VALUES (3, 2, 1);
+INSERT INTO public.instalacion_franja VALUES (4, 2, 2);
+INSERT INTO public.instalacion_franja VALUES (5, 3, 1);
+INSERT INTO public.instalacion_franja VALUES (6, 3, 2);
+INSERT INTO public.instalacion_franja VALUES (7, 4, 1);
+INSERT INTO public.instalacion_franja VALUES (8, 4, 2);
+INSERT INTO public.instalacion_franja VALUES (9, 5, 1);
+INSERT INTO public.instalacion_franja VALUES (10, 5, 2);
+INSERT INTO public.instalacion_franja VALUES (11, 6, 1);
+INSERT INTO public.instalacion_franja VALUES (12, 6, 2);
+
+
+--
+-- TOC entry 2260 (class 0 OID 16501)
+-- Dependencies: 207
+-- Data for Name: meapunto; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+
+
+--
+-- TOC entry 2278 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: meapunto_id_meapunto_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.meapunto_id_meapunto_seq', 1, false);
+
+
+--
+-- TOC entry 2256 (class 0 OID 16482)
+-- Dependencies: 203
+-- Data for Name: reserva; Type: TABLE DATA; Schema: public; Owner: admin
+--
+
+INSERT INTO public.reserva VALUES (1, 1, 1, '2018-02-25', '2018-02-23 12:19:12.626', 'E011893', NULL, 'C');
+INSERT INTO public.reserva VALUES (2, 14, 1, '2018-03-01', '2018-02-26 11:52:22.426', 'E011893', NULL, 'C');
+
+
+--
+-- TOC entry 2279 (class 0 OID 0)
+-- Dependencies: 202
+-- Name: reserva_id_reserva_seq; Type: SEQUENCE SET; Schema: public; Owner: admin
+--
+
+SELECT pg_catalog.setval('public.reserva_id_reserva_seq', 34, true);
+
+
+--
+-- TOC entry 2100 (class 2606 OID 16398)
+-- Name: actividad pk_actividad; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.actividad
+    ADD CONSTRAINT pk_actividad PRIMARY KEY (id_actividad);
+
+
+--
+-- TOC entry 2102 (class 2606 OID 16403)
+-- Name: admin pk_admin; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.admin
+    ADD CONSTRAINT pk_admin PRIMARY KEY (id_admin);
+
+
+--
+-- TOC entry 2104 (class 2606 OID 16408)
+-- Name: centro pk_centro; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.centro
+    ADD CONSTRAINT pk_centro PRIMARY KEY (id_centro);
+
+
+--
+-- TOC entry 2106 (class 2606 OID 16416)
+-- Name: dia_festivo pk_dia_festivo; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.dia_festivo
+    ADD CONSTRAINT pk_dia_festivo PRIMARY KEY (id_dia_festivo);
+
+
+--
+-- TOC entry 2108 (class 2606 OID 16421)
+-- Name: franja pk_franja; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.franja
+    ADD CONSTRAINT pk_franja PRIMARY KEY (id_franja);
+
+
+--
+-- TOC entry 2110 (class 2606 OID 16426)
+-- Name: franja_dia pk_franja_dia; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.franja_dia
+    ADD CONSTRAINT pk_franja_dia PRIMARY KEY (id_franja_dia);
+
+
+--
+-- TOC entry 2112 (class 2606 OID 16479)
+-- Name: inscripcion_meapunto pk_inscripcion_meapunto; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.inscripcion_meapunto
+    ADD CONSTRAINT pk_inscripcion_meapunto PRIMARY KEY (id_inscripcion_meapunto);
+
+
+--
+-- TOC entry 2116 (class 2606 OID 16493)
+-- Name: instalacion pk_instalacion; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.instalacion
+    ADD CONSTRAINT pk_instalacion PRIMARY KEY (id_instalacion);
+
+
+--
+-- TOC entry 2118 (class 2606 OID 16498)
+-- Name: instalacion_franja pk_instalacion_franja; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.instalacion_franja
+    ADD CONSTRAINT pk_instalacion_franja PRIMARY KEY (id_instalacion_franja);
+
+
+--
+-- TOC entry 2120 (class 2606 OID 16509)
+-- Name: meapunto pk_meapunto; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.meapunto
+    ADD CONSTRAINT pk_meapunto PRIMARY KEY (id_meapunto);
+
+
+--
+-- TOC entry 2114 (class 2606 OID 16487)
+-- Name: reserva pk_reserva; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.reserva
+    ADD CONSTRAINT pk_reserva PRIMARY KEY (id_reserva);
+
+
+--
+-- TOC entry 2269 (class 0 OID 0)
+-- Dependencies: 208
+-- Name: FUNCTION compose_session_replication_role(role text); Type: ACL; Schema: public; Owner: focker
+--
+
+REVOKE ALL ON FUNCTION public.compose_session_replication_role(role text) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.compose_session_replication_role(role text) TO admin;
+
+
+--
+-- TOC entry 2270 (class 0 OID 0)
+-- Dependencies: 209
+-- Name: FUNCTION kill_all_connections(); Type: ACL; Schema: public; Owner: focker
+--
+
+REVOKE ALL ON FUNCTION public.kill_all_connections() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.kill_all_connections() TO admin;
+
+
+--
+-- TOC entry 2271 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: FUNCTION upgrade_postgis_23x(); Type: ACL; Schema: public; Owner: focker
+--
+
+REVOKE ALL ON FUNCTION public.upgrade_postgis_23x() FROM PUBLIC;
+GRANT ALL ON FUNCTION public.upgrade_postgis_23x() TO admin;
+
+
+-- Completed on 2018-09-07 11:08:53
+
+--
+-- PostgreSQL database dump complete
+--
+

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iberdrola.respadel.dao.ReservaMapper">
+
+  <select id="getReservaPorId" parameterType="java.lang.Long" resultType="Reserva">
+    SELECT
+          ID_RESERVA as idReserva,
+          FK_FRANJA_DIA as fkFranjaDia,
+          FK_INSTALACION as fkInstalacion,
+          DIA as dia,
+          USUARIO as usuario
+    FROM RESERVA
+    WHERE ID_RESERVA = #{value}
+  </select>
+
+  <select id="getReservasPorUsuario" parameterType="string" resultType="Reserva">
+    SELECT
+          ID_RESERVA as idReserva,
+          FK_FRANJA_DIA as fkFranjaDia,
+          FK_INSTALACION as fkInstalacion,
+          DIA as dia,
+          USUARIO as usuario,
+          ESTADO as estado,
+          FEC_HORA as fecHora
+    FROM RESERVA
+    WHERE USUARIO = #{value}
+    ORDER BY FEC_HORA DESC
+  </select>
+  
+  <select id="getMapaReservas" parameterType="map" resultType="map">
+    <![CDATA[
+    SELECT
+          FK_FRANJA_DIA || '_' || FK_INSTALACION ||'_' || TO_CHAR(DIA,'YYYY-MM-DD') as RESERVA,
+          USUARIO as usuario,
+          ESTADO as estado,
+          ID_RESERVA AS ID_RESERVA
+    FROM RESERVA
+    WHERE DIA>= #{diaInicio}
+        AND DIA <=#{diaFin}
+        ]]>
+  </select>
+  
+  <select id="getMapaReservasDia" parameterType="map" resultType="map">
+    <![CDATA[
+    SELECT
+          FK_FRANJA_DIA || '_' || FK_INSTALACION as RESERVA,
+          USUARIO as usuario,
+          ESTADO as estado,
+          ID_RESERVA AS ID_RESERVA
+    FROM RESERVA
+    WHERE DIA= #{dia,jdbcType=DATE}
+        ]]>
+  </select> 
+  
+  <select id="getProximasReservas" parameterType="map" resultType="Reserva">
+    <![CDATA[
+    SELECT
+          ID_RESERVA as idReserva,
+          FK_FRANJA_DIA as fkFranjaDia,
+          FK_INSTALACION as fkInstalacion,
+          DIA as dia,
+          USUARIO as usuario,
+          ESTADO as estado
+    FROM RESERVA, INSTALACION
+    WHERE DIA >= #{dia,jdbcType=DATE}
+        AND USUARIO = #{usuario,jdbcType=VARCHAR}
+        AND FK_ACTIVIDAD = #{actividad,jdbcType=BIGINT}
+        AND FK_INSTALACION = ID_INSTALACION
+        ]]>
+  </select>
+  
+  <!-- Ojo, las reservas se buscan por la hora a la que se hizo la reserva, no por la fecha reservada -->
+  <select id="getReservasFiltro" parameterType="map" resultType="Reserva" useCache="false">
+    SELECT
+          ID_RESERVA as idReserva,
+          FK_FRANJA_DIA as fkFranjaDia,
+          FK_INSTALACION as fkInstalacion,
+          DIA as dia,
+          USUARIO as usuario,
+          ESTADO as estado,
+          FEC_HORA as fecHora
+    FROM RESERVA
+     <where>
+        <if test="fkInstalacion != null">
+            FK_INSTALACION = #{fkInstalacion,jdbcType=BIGINT}
+        </if>
+        <if test="usuario != null">
+            AND USUARIO like #{usuario,jdbcType=VARCHAR}
+        </if>
+         <if test="fechaDesde != null">
+            AND FEC_HORA &gt;= #{fechaDesde,jdbcType=TIMESTAMP}
+        </if>
+        <if test="fechaHasta != null">
+            AND FEC_HORA &lt;= #{fechaHasta,jdbcType=TIMESTAMP}
+        </if>
+    </where>
+    ORDER BY DIA DESC,FEC_HORA DESC
+  </select>
+  
+   <select id="getCountReservasFiltro" parameterType="map" resultType="int">  
+    SELECT count(ID_RESERVA)
+    FROM RESERVA
+     <where>
+        <if test="fkInstalacion != null">
+            FK_INSTALACION = #{fkInstalacion,jdbcType=BIGINT}
+        </if>
+        <if test="usuario != null">
+            AND USUARIO like #{usuario,jdbcType=VARCHAR}
+        </if>
+        <if test="fechaDesde != null">
+            AND FEC_HORA &gt;= #{fechaDesde,jdbcType=TIMESTAMP}
+        </if>
+        <if test="fechaHasta != null">
+            AND FEC_HORA &lt;= #{fechaHasta,jdbcType=TIMESTAMP}
+        </if>
+    </where>
+  
+  </select>
+
+  <!--insert id="crearReserva" parameterType="Reserva">
+    <selectKey keyProperty="idReserva" resultType="long" order="BEFORE" databaseId="Oracle">
+        select RESERVA_SEQ.nextval as idReserva from dual
+    </selectKey>
+    INSERT INTO RESERVA(ID_RESERVA, FK_FRANJA_DIA,FK_INSTALACION,DIA,FEC_HORA,USUARIO,NOMBRE_ORIGINAL,ESTADO)  
+    VALUES (
+          #{idReserva,jdbcType=BIGINT},
+          #{fkFranjaDia,jdbcType=BIGINT},
+          #{fkInstalacion,jdbcType=BIGINT},
+          #{dia,jdbcType=DATE},
+          #{fecHora,jdbcType=TIMESTAMP},
+          #{usuario,jdbcType=VARCHAR},
+          #{nombreOriginal,jdbcType=VARCHAR}, 
+          #{estado,jdbcType=VARCHAR})         
+  </insert--> 
+  
+    <insert id="crearReserva" parameterType="Reserva">
+    INSERT INTO RESERVA(FK_FRANJA_DIA,FK_INSTALACION,DIA,FEC_HORA,USUARIO,NOMBRE_ORIGINAL,ESTADO)  
+    VALUES (       
+          #{fkFranjaDia,jdbcType=BIGINT},
+          #{fkInstalacion,jdbcType=BIGINT},
+          #{dia,jdbcType=DATE},
+          #{fecHora,jdbcType=TIMESTAMP},
+          #{usuario,jdbcType=VARCHAR},
+          #{nombreOriginal,jdbcType=VARCHAR}, 
+          #{estado,jdbcType=VARCHAR})         
+  </insert> 
+
+    <delete id="eliminarReserva" parameterType="map">
+        DELETE FROM RESERVA WHERE ID_RESERVA=#{idReserva,jdbcType=BIGINT} and USUARIO = #{usuario,jdbcType=VARCHAR}
+    </delete>
+
+
+<!-- Por ahora usamos un campo autoincremental de hsqldb -->
+   <select id="getByExample" parameterType="Reserva" resultType="Reserva" >  
+    SELECT *
+    FROM RESERVA
+     <where>
+         <if test="idReserva != null">
+            ID_RESERVA = idReserva
+        </if>
+        <if test="fkFranjaDia != null">
+            AND FK_FRANJA_DIA = #{fkFranjaDia,jdbcType=BIGINT}
+        </if>
+        <if test="fkInstalacion != null">
+            AND FK_INSTALACION = #{fkInstalacion,jdbcType=BIGINT}
+        </if>
+        <if test="dia != null">
+            AND DIA = #{dia,jdbcType=DATE}
+        </if>
+        <if test="fecHora != null">
+            AND FEC_HORA = #{fecHora,jdbcType=TIMESTAMP}
+        </if>
+        <if test="usuario != null">
+            AND USUARIO like #{usuario,jdbcType=VARCHAR}
+        </if>
+         <if test="nombreOriginal != null">
+            AND NOMBRE_ORIGINAL like #{nombreOriginal,jdbcType=VARCHAR}
+        </if>
+         <if test="estado != null">
+            AND ESTADO like #{estado,jdbcType=VARCHAR}
+        </if>
+    </where>
+  </select>
+</mapper>
