@@ -13,7 +13,7 @@
 	</library>
 
   <!-- Automatically expand WAR files and EAR files -->
-  <applicationManager autoExpand="true"/>
+  <applicationManager autoExpand="false"/>
 
 	<basicRegistry id="basic" realm="customRealm">
 	     <user name="user" password="user" />
