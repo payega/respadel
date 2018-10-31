@@ -2,6 +2,9 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 revisionHistoryLimit: 1
+IPDatabase: 192.168.65.3
+PortDatabase: 5432
+NameDatabase: compose
 image:
   repository: respadel
   tag: v1.0.0

@@ -34,6 +34,12 @@ spec:
             value: "{{ .Values.service.servicePort }}"
           - name: APPLICATION_NAME
             value: "{{ .Release.Name }}"
+          - name: IP_DATABASE
+            value: "{{ .Values.IPDatabase }}"            
+          - name: PORT_DATABASE
+            value: "{{ .Values.PortDatabase }}"            
+          - name: NAME_DATABASE
+            value: "{{ .Values.NameDatabase }}"                        
 {{- if .Values.generatedBindings.enabled }}
 {{.Files.Get "bindings.yaml" | indent 10 }}
 {{- end }}
