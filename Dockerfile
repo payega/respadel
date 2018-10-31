@@ -1,6 +1,6 @@
 FROM websphere-liberty:javaee7
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
-RUN cgmod -R 777 /config
+RUN chmod -R 777 /config
 COPY /target/liberty/wlp/usr/servers/defaultServer /config/
 COPY /target/liberty/wlp/usr/shared/resources /config/resources/
 COPY /src/main/liberty/config/jvmbx.options /config/jvm.options
