@@ -1,7 +1,13 @@
 FROM websphere-liberty:javaee7
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
 COPY /target/liberty/wlp/usr/servers/defaultServer /config/
-RUN chmod -R 777 /config/apps
+RUN chown -R 1001:0 /config && \
+    chown -R 1001:0 /output && \
+    chown -R 1001:0 /logs && \
+    chmod -R g+rw /config && \
+    chmod -R g+rw /output && \
+    chmod -R g+rw /logs
+USER 1001
 COPY /target/liberty/wlp/usr/shared/resources /config/resources/
 COPY /src/main/liberty/config/jvmbx.options /config/jvm.options
 # Install required features if not present, install APM Data Collector
