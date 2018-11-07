@@ -1,4 +1,4 @@
-FROM websphere-liberty:javaee7
+FROM payega/websphere-liberty:javaee7
 LABEL maintainer="IBM Java Engineering at IBM Cloud"
 COPY /target/liberty/wlp/usr/servers/defaultServer /config/
 COPY /target/liberty/wlp/usr/shared/resources /config/resources/

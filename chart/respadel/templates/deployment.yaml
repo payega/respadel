@@ -17,14 +17,15 @@ spec:
       - name: "{{  .Chart.Name  }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-{{ if .Values.istio.enabled }}
-{{ else }}
-        readinessProbe:
-          httpGet:
-            path: /respadel/health
-            port: 9080
-          initialDelaySeconds: 20
-{{ end }}
+#quito health
+#{{ if .Values.istio.enabled }}
+#{{ else }}
+#        readinessProbe:
+#          httpGet:
+#            path: /respadel/health
+#            port: 9080
+#          initialDelaySeconds: 20
+#{{ end }}
         resources:
           requests:
             cpu: "{{ .Values.image.resources.requests.cpu }}"
